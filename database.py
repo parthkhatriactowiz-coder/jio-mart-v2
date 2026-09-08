@@ -38,9 +38,9 @@ def get_db_connection():
 
 
 def init_db():
-    """Create scraped_products table with dedicated columns if it does not exist."""
+    """Create scraped_products_v2 table if it does not exist."""
     create_table_query = """
-    CREATE TABLE IF NOT EXISTS scraped_products (
+    CREATE TABLE IF NOT EXISTS scraped_products_v2 (
         id INT AUTO_INCREMENT PRIMARY KEY,
         product_id INT,
         url VARCHAR(500) NOT NULL,
@@ -72,6 +72,7 @@ def init_db():
         disclaimer TEXT,
         raw_response_hash CHAR(64),
         variants JSON,
+        images JSON,
         
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -86,7 +87,9 @@ def init_db():
         conn.commit()
         cursor.close()
         conn.close()
-        logger.info("Database table 'scraped_products' checked/created successfully.")
+        logger.info(
+            "Database table 'scraped_products_v2' checked/created successfully."
+        )
     except mysql.connector.Error as e:
         logger.error(f"Failed to initialize database table: {e}")
         raise
@@ -211,20 +214,20 @@ def save_scraped_product(
     variants_json = json.dumps(variants, ensure_ascii=False)
 
     insert_query = """
-        INSERT INTO scraped_products (
+        INSERT INTO scraped_products_v2 (
             product_id, url, pincode,
             latitude, longitude, country, country_iso_code, city, state, store_ids, polygon_id,
             product_name, slug, size, available, quantity, brand_name, sold_by, origin_countries,
             manufacturer_name, manufacturer_address, product_code, shelf_life, key_features,
             item_dimensions, item_specifications, product_showcase, disclaimer,
-            raw_response_hash, variants
+            raw_response_hash, variants, images
         ) VALUES (
             %s, %s, %s,
             %s, %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s,
             %s, %s, %s, %s,
-            %s, %s
+            %s, %s, %s
         ) ON DUPLICATE KEY UPDATE
             product_id = VALUES(product_id),
             latitude = VALUES(latitude),
@@ -253,6 +256,7 @@ def save_scraped_product(
             disclaimer = VALUES(disclaimer),
             raw_response_hash = VALUES(raw_response_hash),
             variants = VALUES(variants),
+            images = VALUES(images),
             updated_at = CURRENT_TIMESTAMP;
     """
 
@@ -287,6 +291,7 @@ def save_scraped_product(
         disclaimer,
         raw_response_hash,
         variants_json,
+        json.dumps(product_data.get("images") or [], ensure_ascii=False),
     )
 
     update_status_query = """

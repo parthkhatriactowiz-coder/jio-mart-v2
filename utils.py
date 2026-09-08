@@ -58,7 +58,7 @@ def serialize_field(val):
     return str(val)
 
 
-def save_raw_response_gzip(url, pincode, raw_data, folder="raw_responses"):
+def save_raw_response_gzip(url, pincode, raw_data, folder="raw_responses_v2"):
     """
     Compresses raw API response payload using gzip and saves to folder.
     Returns SHA256 hash string for database tracking.

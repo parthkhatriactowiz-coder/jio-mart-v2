@@ -38,6 +38,7 @@ def extract_product_data(res, pincode):
         )
 
     key_features = [clean_text(f) for f in (attrs.get("key_features") or [])]
+    images = [item.get("url") for item in (res.get("medias") or []) if item.get("url")]
 
     return {
         "product_name": clean_text(res.get("name")),
@@ -58,6 +59,7 @@ def extract_product_data(res, pincode):
         "item_specifications": item_specifications or None,
         "product_showcase": clean_text(attrs.get("snippet")),
         "disclaimer": clean_text(attrs.get("disclaimers")),
+        "images": images or None,
     }
 
 

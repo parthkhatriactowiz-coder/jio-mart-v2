@@ -44,6 +44,7 @@ PRODUCT_COLUMNS = [
     "disclaimer",
     "raw_response_hash",
     "variants",
+    "images",
     "created_at",
     "updated_at",
 ]
@@ -59,6 +60,7 @@ LONG_COLUMNS = {
     "product_showcase",
     "disclaimer",
     "variants",
+    "images",
     "manufacturer_address",
 }
 
@@ -81,7 +83,7 @@ def fetch_products(pincode=None):
     connection = mysql.connector.connect(**DB_CONFIG)
     try:
         cursor = connection.cursor(dictionary=True)
-        query = f"SELECT {', '.join(PRODUCT_COLUMNS)} FROM scraped_products"
+        query = f"SELECT {', '.join(PRODUCT_COLUMNS)} FROM scraped_products_v2"
         params = ()
         if pincode:
             query += " WHERE pincode = %s"
